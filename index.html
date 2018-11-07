@@ -15,9 +15,84 @@
       return (false);
     }
   </script> -->
+  <!-- Firebase auth code -->
+  <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase.js"></script>
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.css" />
+  <script src="firebaseConfig.js"></script>
+  <script type="text/javascript">
+
+    var current_user = null; // firebaseConfig will handle checking login
+
+    var database = null; // firebase will config this
+
+    function save() {
+      console.log('save...');
+
+      var userId = current_user.uid;
+
+      if (xw._firebaseId) {
+        xw._lastSaved = Date.now();
+        console.log('updating...', xw._firebaseId);
+        // update current
+        firebase.database().ref('users/' + userId + '/puzzles/' + xw._firebaseId).set(xw);
+      }
+      else {
+        console.log('saving new...');
+
+        xw._firstSaved = Date.now();
+        xw._lastSaved = xw._firstSaved;
+
+        firebase.database().ref('users/' + userId + '/puzzles').push(xw).then(resp => {
+          console.log('saved');
+          console.log(resp.key)
+          xw._firebaseId = resp.key;
+        }
+        );
+      }
+
+    }
+
+    function fetch() {
+      var userId = current_user.uid;
+      firebase.database().ref('users/' + userId + '/puzzles').once("value",
+        function (resp) {
+
+          var puzzles = resp.val();
+          var keys = Object.keys(puzzles);
+
+          console.log('puzzles', puzzles)
+
+          for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var puz = puzzles[key];
+
+            console.log(puz.title + ' ' + puz._lastSaved, puz);
+          }
+
+          // load a puzzle
+          xw = puzzles[keys[0]]; // model
+          current = new Interface(xw.rows, xw.cols); // view-controller
+          current.update();
+          updateUI();
+        }
+      );
+    }
+
+  </script>
 </head>
 
 <body>
+
+  <button type="button" onclick="ui.start('#firebaseui-auth-container', uiConfig);">log in</button>
+  <button type="button" onclick="firebase.auth().signOut()">sign out</button>
+  <button type="button" onclick="save()">save</button>
+  <button type="button" onclick="fetch()">fetch</button>
+
+  <span id="auth-status"></span>
+  <div id="firebaseui-auth-container"></div>
+
+
   <div id="header">
     <h1><span id="puzzle-title" class="editable" contenteditable="true" onkeydown="suppressEnterKey(event)" onfocusout="setTitle()">Untitled</span>
       by <span id="puzzle-author" class="editable" contenteditable="true" onkeydown="suppressEnterKey(event)"
@@ -96,7 +171,7 @@
       <i class="fa fa-keyboard-o fa-fw"></i>
     </button>
   </div>
-  
+
   <div id="main"></div>
 
   <div id="sidebar">
@@ -126,19 +201,19 @@
 
   <div id="footer">
     <div id="credits">
-    Forked from <a href="http://www.keiranking.com/blog/2017/phil/Phil">Phil</a>, by <a href="mailto:me@keiranking.com?Subject=Kevin & Phil"
-      target="_top">Kieran King</a><br />
-    Modified by <a href="mailto:dnapoleoni@gmail.com">Daniel Napoleoni</a>
-  </div>
+      Forked from <a href="http://www.keiranking.com/blog/2017/phil/Phil">Phil</a>, by <a href="mailto:me@keiranking.com?Subject=Kevin & Phil"
+        target="_top">Kieran King</a><br />
+      Modified by <a href="mailto:dnapoleoni@gmail.com">Daniel Napoleoni</a>
+    </div>
   </div>
   <div id="shortcuts" class="hidden">
     <h3>Keyboard Shortcuts</h3>
     <table>
-      <tr> 
+      <tr>
         <td>Undo</td>
         <td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td>
       </tr>
-      <tr> 
+      <tr>
         <td>Redo</td>
         <td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td>
       </tr>
@@ -152,8 +227,8 @@
       </tr>
     </table>
   </div>
-  
- <!--  <div id="modal" style="display:block; padding:0; margin:0; ">
+
+  <!--  <div id="modal" style="display:block; padding:0; margin:0; ">
     <div style="position:absolute; overflow: hidden; width:100%; height:100%; top:0; left:0; background-color: #efefef; opacity:0.9;"></div>
     <p style="padding:40px; background-color:#999999; text-align:center; position:absolute; left:0; color: #efefef; top:50%; width:100%; margin-top:-50px; box-sizing: border-box; ">
       This website is currently closed for maintenance. Please come back later (or <a href='?debug=true'>debug!</a>).
@@ -173,7 +248,39 @@
       <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
         fill="currentColor" class="octo-body"></path>
     </svg></a>
-  <style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+  <style>
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out
+    }
+
+    @keyframes octocat-wave {
+
+      0%,
+      100% {
+        transform: rotate(0)
+      }
+
+      20%,
+      60% {
+        transform: rotate(-25deg)
+      }
+
+      40%,
+      80% {
+        transform: rotate(10deg)
+      }
+    }
+
+    @media (max-width:500px) {
+      .github-corner:hover .octo-arm {
+        animation: none
+      }
+
+      .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out
+      }
+    }
+  </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.2/jspdf.plugin.autotable.js"></script>
   <script src="patterns.js"></script>

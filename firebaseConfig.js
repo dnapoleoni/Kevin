@@ -1,6 +1,6 @@
 // Firebase config
 var config = {
-    apiKey: "<api-key>",
+    apiKey: "AIzaSyALPcu4vprNzxhwOrQHMM-Mmo24viUtclc",
     authDomain: "kevin-xword.firebaseapp.com",
     databaseURL: "https://kevin-xword.firebaseio.com",
     projectId: "kevin-xword",
@@ -17,17 +17,11 @@ var uiConfig = {
             var isNewUser = authResult.additionalUserInfo.isNewUser;
             var providerId = authResult.additionalUserInfo.providerId;
             var operationType = authResult.operationType;
-            // Do something with the returned AuthResult.
-            // Return type determines whether we continue the redirect automatically
-            // or whether we leave that to developer to handle.
+
             return true;
         },
         signInFailure: function (error) {
-            // Some unrecoverable error occurred during sign-in.
-            // Return a promise when error handling is completed and FirebaseUI
-            // will reset, clearing any UI. This commonly occurs for error code
-            // 'firebaseui/anonymous-upgrade-merge-conflict' when merge conflict
-            // occurs. Check below for more details on this.
+
             return handleUIError(error);
         },
         uiShown: function () {

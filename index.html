@@ -19,18 +19,32 @@
   <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase.js"></script>
   <script src="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.js"></script>
   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.css" />
+  <script src="api_key.js"></script>
   <script src="firebaseConfig.js"></script>
   <script type="text/javascript">
 
     var current_user = null; // firebaseConfig will handle checking login
-
     var database = null; // firebase will config this
+    var customDictionary = [];
 
     function save() {
       console.log('save...');
 
       var userId = current_user.uid;
 
+      // for custom dictionary
+      var dict = document.getElementById("custom-dictionary").value;
+      console.log('dict', dict);
+      var split = dict.split('\n');
+      console.log('split', split);
+      // save dictionary
+      if (split.length > 0) {
+        firebase.database().ref('users/' + userId + '/dictionary').set(split);
+        console.log('saved dictionary...');
+      }
+
+
+      // save puzzle
       if (xw._firebaseId) {
         xw._lastSaved = Date.now();
         console.log('updating...', xw._firebaseId);
@@ -55,6 +69,27 @@
 
     function fetch() {
       var userId = current_user.uid;
+
+      // get dictionary
+      firebase.database().ref('users/' + userId + '/dictionary').once("value",
+        function (resp) {
+          var list = resp.val();
+          console.log('dictionary', list);
+          customDictionary = list;
+          // add to dictionary list
+          addToWordlist(customDictionary);
+          sortWordlist();
+
+          // restore custom dictionary to textarea
+          var inputVal = '';
+          for (var i = 0; i < list.length; i++) {
+            inputVal += list[i] + '\n';
+          }
+          document.getElementById("custom-dictionary").value = inputVal;
+
+        });
+
+      // get puzzle (first for now)
       firebase.database().ref('users/' + userId + '/puzzles').once("value",
         function (resp) {
 
@@ -91,7 +126,6 @@
 
   <span id="auth-status"></span>
   <div id="firebaseui-auth-container"></div>
-
 
   <div id="header">
     <h1><span id="puzzle-title" class="editable" contenteditable="true" onkeydown="suppressEnterKey(event)" onfocusout="setTitle()">Untitled</span>
@@ -206,6 +240,11 @@
       Modified by <a href="mailto:dnapoleoni@gmail.com">Daniel Napoleoni</a>
     </div>
   </div>
+
+  <div>
+    <textarea id="custom-dictionary" rows="10" class="form-control"></textarea>
+  </div>
+
   <div id="shortcuts" class="hidden">
     <h3>Keyboard Shortcuts</h3>
     <table>

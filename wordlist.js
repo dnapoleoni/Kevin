@@ -55,7 +55,7 @@ function openWordlistFile(e) {
     return;
   }
   let reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function (e) {
     const words = e.target.result.split(/\s/g);
     addToWordlist(words);
     sortWordlist();
@@ -68,7 +68,7 @@ function openWordlistFile(e) {
 function openDefaultWordlist(url) {
   let textFile = new XMLHttpRequest();
   textFile.open("GET", url, true);
-  textFile.onreadystatechange = function() {
+  textFile.onreadystatechange = function () {
     if (textFile.readyState === 4 && textFile.status === 200) {  // Makes sure the document is ready to parse, and it's found the file.
       const words = textFile.responseText.split(/\s/g);
       addToWordlist(words);
@@ -82,7 +82,7 @@ function openDefaultWordlist(url) {
 function removeWordlistDuplicates() {
   for (let i = 3; i < wordlist.length; i++) {
     if (wordlist[i].length >= 2) {
-      for (let j = wordlist[i].length - 1; j >0; j--) {
+      for (let j = wordlist[i].length - 1; j > 0; j--) {
         if (wordlist[i][j] == wordlist[i][j - 1]) {
           wordlist[i].splice(j, 1);
         }
@@ -110,6 +110,9 @@ function matchFromWordlist(word) {
 }
 
 function updateMatchesUI() {
+
+  console.log('updateMatches customDictionary=', customDictionary);
+
   let acrossMatchList = document.getElementById("across-matches");
   let downMatchList = document.getElementById("down-matches");
   acrossMatchList.innerHTML = "";
@@ -120,6 +123,11 @@ function updateMatchesUI() {
     let li = document.createElement("LI");
     li.innerHTML = acrossMatches[i].toLowerCase();
     li.className = "";
+    // if this is a custom dictionary word, highlight it
+    if (customDictionary) {
+      if (customDictionary.indexOf(acrossMatches[i].toLowerCase()) > -1)
+        li.className = "custom-dictionary-match";
+    }
     // li.addEventListener('click', printScore);
     li.addEventListener('dblclick', fillGridWithMatch);
     acrossMatchList.appendChild(li);
@@ -128,6 +136,11 @@ function updateMatchesUI() {
     let li = document.createElement("LI");
     li.innerHTML = downMatches[i].toLowerCase();
     li.className = "";
+    // if this is a custom dictionary word, highlight it
+    if (customDictionary) {
+      if (customDictionary.indexOf(downMatches[i].toLowerCase()) > -1)
+        li.className = "custom-dictionary-match";
+    }
     li.addEventListener('dblclick', fillGridWithMatch);
     downMatchList.appendChild(li);
   }

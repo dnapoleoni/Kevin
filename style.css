@@ -319,6 +319,7 @@ kbd {
 
 #sidebar ul.matches li {
   margin: 2px 0;
+  font-family: Andale Mono, monospace;
 }
 
 #sidebar ul.matches li:hover {
@@ -483,4 +484,8 @@ kbd {
   position: absolute;
   left: 2px;
   top: 0px;
+}
+
+.custom-dictionary-match {
+  color: blue;
 }

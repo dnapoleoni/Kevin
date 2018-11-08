@@ -42,7 +42,7 @@ function save() {
 
         firebase.database().ref('users/' + userId + '/puzzles').push(xw).then(resp => {
             console.log('saved');
-            console.log(resp.key)
+            console.log('key', resp.key)
             xw._firebaseId = resp.key;
         }
         );
@@ -77,6 +77,10 @@ function fetch() {
     allPuzzles = [];
     var puzzlesSelect = document.getElementById('puzzles-select');
 
+    puzzlesSelect.options.length = 0;
+    var blank_opt = document.createElement("OPTION");
+    puzzlesSelect.appendChild(blank_opt);
+
     // get puzzle (first for now)
     firebase.database().ref('users/' + userId + '/puzzles').once("value",
         function (resp) {
@@ -105,12 +109,6 @@ function fetch() {
                 }
 
                 allPuzzles = puzzlesArray;
-
-                // load a puzzle
-                xw = puzzles[keys[0]]; // model
-                current = new Interface(xw.rows, xw.cols); // view-controller
-                current.update();
-                updateUI();
             }
         }
     );
@@ -120,8 +118,19 @@ function fetch() {
 
 function loadFromList() {
     var puzzlesSelect = document.getElementById('puzzles-select');
-    xw = allPuzzles[puzzlesSelect.value]; // model
-    current = new Interface(xw.rows, xw.cols); // view-controller
-    current.update();
-    updateUI();
+    if (puzzlesSelect.value) {
+        xw = allPuzzles[puzzlesSelect.value]; // model
+        current = new Interface(xw.rows, xw.cols); // view-controller
+        current.update();
+        updateUI();
+    }
+}
+
+function deletePuzzle() {
+    console.log(xw);
+    if (xw._firebaseId && confirm('Are you sure?')) {
+        var userId = current_user.uid;
+        firebase.database().ref('users/' + userId + '/puzzles').child(xw._firebaseId).remove();
+        fetch();
+    }
 }

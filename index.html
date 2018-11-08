@@ -29,7 +29,8 @@
   <button type="button" id="login-button" onclick="ui.start('#firebaseui-auth-container', uiConfig);">log in</button>
   <button type="button" id="logout-button" onclick="firebase.auth().signOut()">sign out</button>
   <button type="button" id="save-button" onclick="save()">save</button>
-  <button type="button" id="fetch-button" onclick="fetch()">fetch</button>
+  <button type="button" id="delete-button" onclick="deletePuzzle()">delete</button>
+  <!-- <button type="button" id="fetch-button" onclick="fetch()">fetch</button> -->
   <select id="puzzles-select" onchange="loadFromList()">
 
   </select>

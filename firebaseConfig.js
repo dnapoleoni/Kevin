@@ -78,6 +78,10 @@ function initApp() {
             document.getElementById("auth-status").innerText = displayName;
             document.getElementById("login-button").classList.add("hidden");
             document.getElementById("logout-button").classList.remove("hidden");
+
+            // load list of puzzles
+            fetch();
+
             // ...
         } else {
             // User is signed out.

@@ -111,32 +111,51 @@ function matchFromWordlist(word) {
 
 function updateMatchesUI() {
 
-  console.log('updateMatches customDictionary=', customDictionary);
-
   let acrossMatchList = document.getElementById("across-matches");
   let downMatchList = document.getElementById("down-matches");
   acrossMatchList.innerHTML = "";
   downMatchList.innerHTML = "";
+
+  // ACROSS
   const acrossMatches = matchFromWordlist(current.acrossWord);
-  const downMatches = matchFromWordlist(current.downWord);
+  var currentAcrossWordLetterIndex = current.col - current.acrossStartIndex;
   for (i = 0; i < acrossMatches.length; i++) {
     let li = document.createElement("LI");
-    li.innerHTML = acrossMatches[i].toLowerCase();
-    li.className = "";
+
+    // highlight the current letter
+    var word = acrossMatches[i].toLowerCase();
+    var letter = word[currentAcrossWordLetterIndex];
+    var inner = word.substring(0, currentAcrossWordLetterIndex) +
+      '<span class="match-highlight-letter">' + letter + '</span>' +
+      word.substring(currentAcrossWordLetterIndex + 1, 100);
+    li.innerHTML = inner;
+
     // if this is a custom dictionary word, highlight it
+    li.className = "";
     if (customDictionary) {
       if (customDictionary.indexOf(acrossMatches[i].toLowerCase()) > -1)
         li.className = "custom-dictionary-match";
     }
-    // li.addEventListener('click', printScore);
     li.addEventListener('dblclick', fillGridWithMatch);
     acrossMatchList.appendChild(li);
   }
+
+  // DOWN
+  const downMatches = matchFromWordlist(current.downWord);
+  var currentDownWordLetterIndex = current.row - current.downStartIndex;
   for (i = 0; i < downMatches.length; i++) {
+
     let li = document.createElement("LI");
-    li.innerHTML = downMatches[i].toLowerCase();
+
+    // highlight the current letter
+    var word = downMatches[i].toLowerCase();
+    var letter = word[currentDownWordLetterIndex];
+    var inner = word.substring(0, currentDownWordLetterIndex) +
+      '<span class="match-highlight-letter">' + letter + '</span>' +
+      word.substring(currentDownWordLetterIndex + 1, 100);
+    li.innerHTML = inner;
+
     li.className = "";
-    // if this is a custom dictionary word, highlight it
     if (customDictionary) {
       if (customDictionary.indexOf(downMatches[i].toLowerCase()) > -1)
         li.className = "custom-dictionary-match";

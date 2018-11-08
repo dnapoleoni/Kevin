@@ -329,6 +329,10 @@ kbd {
   font-weight: 500;
 }
 
+.match-highlight-letter {
+  font-weight: bold;
+}
+
 #toolbar {
   clear: both;
   width: 32px;

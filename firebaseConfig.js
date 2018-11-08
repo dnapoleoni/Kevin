@@ -1,6 +1,6 @@
 // Firebase config
 var config = {
-    apiKey: "AIzaSyALPcu4vprNzxhwOrQHMM-Mmo24viUtclc",
+    apiKey: MY_API_KEY,
     authDomain: "kevin-xword.firebaseapp.com",
     databaseURL: "https://kevin-xword.firebaseio.com",
     projectId: "kevin-xword",

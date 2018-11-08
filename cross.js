@@ -424,6 +424,10 @@ function keyboardHandler(e) {
           history.pos = isUndo ? hpos - 1 : hpos;
         }
       }
+      else if (e.which == keyboard.s) {
+        console.log('save changes...');
+        save();
+      }
 
     } else {
 
@@ -698,12 +702,16 @@ function updateInfoUI() {
 
   //    count and pct of black squares
   var blackCount = 0;
+  var fillCount = 0;
   for (var i = 0; i < xw.fill.length; i++) {
-    blackCount += (xw.fill[i].match(/\./g) || []).length
+    blackCount += (xw.fill[i].match(/\./g) || []).length;
+    fillCount += (xw.fill[i].match(/[^\s]/g) || []).length;
   }
   var blackPct = Math.round((blackCount * 100) / (xw.rows * xw.cols));
-  document.getElementById("puzzle-black-count").innerHTML = 'black: ' + blackCount + ' (' + blackPct + '%)';
+  var fillPct = Math.round((fillCount * 100) / (xw.rows * xw.cols));
 
+  document.getElementById("puzzle-black-count").innerHTML = 'black: ' + blackCount + ' (' + blackPct + '%)';
+  document.getElementById("puzzle-fill-count").innerHTML = 'fill: ' + fillCount + ' (' + fillPct + '%)';
 }
 
 function createGrid(rows, cols) {

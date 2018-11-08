@@ -202,9 +202,10 @@ kbd {
   border-radius: 6px;
   background-color: var(--dk-grey);
   color: var(--lt-grey);
-  float: left;
+  float: right;
   position:absolute;
   bottom:10px;
+  right: 10px;
   /*top:60px;*/
   /*left:140px;*/
   opacity:.95;
@@ -273,7 +274,7 @@ kbd {
   font-weight: 500;
   color: var(--black);
 }
-#puzzle-clue-count, #puzzle-black-count {
+#puzzle-clue-count, #puzzle-black-count, #puzzle-fill-count {
   display: inline-block;
   font-size: 12px;
   margin-left: 10px;

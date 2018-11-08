@@ -200,6 +200,7 @@ class Toolbar {
       "clearFill": new Button("clear-fill"),
       "toggleSymmetry": new Button("toggle-symmetry"),
       "openWordlist": new Button("open-wordlist"),
+      //"openCustomDictionary": new Button("open-custom-dictionary"),
       "autoFill": new Button("auto-fill")
     }
   }
@@ -283,12 +284,14 @@ current.update();
 // F U N C T I O N S
 
 function createNewPuzzle(rows, cols) {
+  xw = {}; // clear all fields, start from scratch
   xw["clues"] = {};
   xw["title"] = DEFAULT_TITLE;
   xw["author"] = DEFAULT_AUTHOR;
   xw["rows"] = rows || DEFAULT_SIZE;
   xw["cols"] = cols || xw.rows;
   xw["fill"] = [];
+
   for (let i = 0; i < xw.rows; i++) {
     xw.fill.push("");
     for (let j = 0; j < xw.cols; j++) {
@@ -422,6 +425,10 @@ function keyboardHandler(e) {
           history.pos = isUndo ? hpos - 1 : hpos;
         }
       }
+      else if (e.which == keyboard.s) {
+        console.log('save changes...');
+        save();
+      }
 
     } else {
 
@@ -439,7 +446,7 @@ function keyboardHandler(e) {
 
       // new entry holder
       let newFill = null;
-      
+
       // stop default keypresses
       if (isSpace || isEnter || isBackspace || isDirection) e.preventDefault();
 
@@ -453,17 +460,17 @@ function keyboardHandler(e) {
 
           // get string
           newFill = String.fromCharCode(e.which);
-          
+
           // move cursor after
           forceNextInput = current.direction == ACROSS ? keyboard.right : keyboard.down;
-        } 
+        }
 
         // blacks
         if (isBlack && !wasBlack) newFill = BLACK;
-        
+
         // blanks
         if (isBlack && wasBlack || isBackspace) newFill = BLANK;
-        
+
         // move after backspace
         if (isBackspace) forceNextInput = current.direction == ACROSS ? keyboard.left : keyboard.up;
 
@@ -486,10 +493,10 @@ function keyboardHandler(e) {
 
           // check for symmetry
           if (isSymmetrical && (wasBlack && newFill == BLANK || wasBlank && newFill == BLACK)) {
-            
+
             // fill partner
             xw.fill[symRow] = xw.fill[symRow].slice(0, symCol) + newFill + xw.fill[symRow].slice(symCol + 1);
-            
+
             // save sym history
             histObj.sym = {
               row: symRow,
@@ -518,7 +525,7 @@ function keyboardHandler(e) {
         // check if real or fake input
         const isFakeEvent = e.key == undefined;
 
-         // let content = xw.fill[current.row][current.col];
+        // let content = xw.fill[current.row][current.col];
         let isNextBlack;
         switch (e.which) {
           case keyboard.left:
@@ -528,11 +535,11 @@ function keyboardHandler(e) {
             break;
           case keyboard.up:
             // check if on board first (rows > cols)
-            let prevRow = xw.fill[current.row - 1]; 
+            let prevRow = xw.fill[current.row - 1];
             if (prevRow != undefined) {
               isNextBlack = prevRow[current.col] == BLACK;
               if (!isFakeEvent || (isFakeEvent && !isNextBlack)) current.row -= (current.row == 0) ? 0 : 1;
-            } 
+            }
             changeDirection(DOWN);
             break;
           case keyboard.right:
@@ -542,17 +549,17 @@ function keyboardHandler(e) {
             break;
           case keyboard.down:
             // check if on board first (rows > cols)
-            let nextRow = xw.fill[current.row + 1]; 
+            let nextRow = xw.fill[current.row + 1];
             if (nextRow != undefined) {
               isNextBlack = nextRow[current.col] == BLACK;
               if (!isFakeEvent || (isFakeEvent && !isNextBlack)) current.row += (current.row == xw.rows - 1) ? 0 : 1;
-            } 
+            }
             changeDirection(DOWN);
             break;
         }
       }
     }
-    
+
     // reactivate new current cell
     activeCell = grid.querySelector('[data-row="' + current.row + '"]').querySelector('[data-col="' + current.col + '"]');
     activeCell.classList.add("active");
@@ -609,10 +616,10 @@ function updateGridUI() {
         let reflected_j = xw.cols - j - 1;
         let reflectedFill = xw.fill[reflected_i][reflected_j];
         let warnActive = fill == BLANK && (reflectedFill != BLANK && reflectedFill != BLACK);
-        let warnOpposite = reflectedFill == BLANK && (fill != BLANK && fill != BLACK); 
+        let warnOpposite = reflectedFill == BLANK && (fill != BLANK && fill != BLACK);
 
         // only warn pairs
-        if (warnOpposite || warnActive){
+        if (warnOpposite || warnActive) {
 
           // pair contains a warn
           if (warnActive) {
@@ -622,18 +629,18 @@ function updateGridUI() {
             const reflectedCell = grid.querySelector('[data-row="' + reflected_i + '"]').querySelector('[data-col="' + reflected_j + '"]');
             reflectedCell.classList.add("warning");
           }
-          
+
         } else {
           // neither are warned
           activeCell.classList.remove("warning");
         }
       } else {
         activeCell.classList.remove("warning");
-      }   
+      }
 
       // set letters
       activeCell.lastChild.innerHTML = fill;
-      
+
       // show/hide black squares
       if (fill == BLACK) {
         activeCell.classList.add("black");
@@ -696,12 +703,16 @@ function updateInfoUI() {
 
   //    count and pct of black squares
   var blackCount = 0;
+  var fillCount = 0;
   for (var i = 0; i < xw.fill.length; i++) {
-    blackCount += (xw.fill[i].match(/\./g) || []).length
+    blackCount += (xw.fill[i].match(/\./g) || []).length;
+    fillCount += (xw.fill[i].match(/[^\s]/g) || []).length;
   }
   var blackPct = Math.round((blackCount * 100) / (xw.rows * xw.cols));
-  document.getElementById("puzzle-black-count").innerHTML = 'black: ' + blackCount + ' (' + blackPct + '%)';
+  var fillPct = Math.round((fillCount * 100) / (xw.rows * xw.cols));
 
+  document.getElementById("puzzle-black-count").innerHTML = 'black: ' + blackCount + ' (' + blackPct + '%)';
+  document.getElementById("puzzle-fill-count").innerHTML = 'fill: ' + fillCount + ' (' + fillPct + '%)';
 }
 
 function createGrid(rows, cols) {

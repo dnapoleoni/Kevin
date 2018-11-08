@@ -27,7 +27,7 @@ var uiConfig = {
         uiShown: function () {
             // The widget is rendered.
             // Hide the loader.
-            document.getElementById('loader').style.display = 'none';
+            // document.getElementById('loader').style.display = 'none';
         }
     },
     credentialHelper: firebaseui.auth.CredentialHelper.ACCOUNT_CHOOSER_COM,
@@ -76,11 +76,15 @@ function initApp() {
             var providerData = user.providerData;
 
             document.getElementById("auth-status").innerText = displayName;
+            document.getElementById("login-button").classList.add("hidden");
+            document.getElementById("logout-button").classList.remove("hidden");
             // ...
         } else {
             // User is signed out.
             // ...
             current_user = null;
+            document.getElementById("logout-button").classList.add("hidden");
+            document.getElementById("login-button").classList.remove("hidden");
             document.getElementById("auth-status").innerText = "not signed in";
         }
     });

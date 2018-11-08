@@ -21,108 +21,18 @@
   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.4.1/firebaseui.css" />
   <script src="api_key.js"></script>
   <script src="firebaseConfig.js"></script>
-  <script type="text/javascript">
-
-    var current_user = null; // firebaseConfig will handle checking login
-    var database = null; // firebase will config this
-    var customDictionary = [];
-
-    function save() {
-      console.log('save...');
-
-      var userId = current_user.uid;
-
-      // for custom dictionary
-      var dict = document.getElementById("custom-dictionary").value;
-      console.log('dict', dict);
-      var split = dict.split('\n');
-      console.log('split', split);
-      // save dictionary
-      if (split.length > 0) {
-        firebase.database().ref('users/' + userId + '/dictionary').set(split);
-        console.log('saved dictionary...');
-      }
-
-
-      // save puzzle
-      if (xw._firebaseId) {
-        xw._lastSaved = Date.now();
-        console.log('updating...', xw._firebaseId);
-        // update current
-        firebase.database().ref('users/' + userId + '/puzzles/' + xw._firebaseId).set(xw);
-      }
-      else {
-        console.log('saving new...');
-
-        xw._firstSaved = Date.now();
-        xw._lastSaved = xw._firstSaved;
-
-        firebase.database().ref('users/' + userId + '/puzzles').push(xw).then(resp => {
-          console.log('saved');
-          console.log(resp.key)
-          xw._firebaseId = resp.key;
-        }
-        );
-      }
-
-    }
-
-    function fetch() {
-      var userId = current_user.uid;
-
-      // get dictionary
-      firebase.database().ref('users/' + userId + '/dictionary').once("value",
-        function (resp) {
-          var list = resp.val();
-          console.log('dictionary', list);
-          customDictionary = list;
-          // add to dictionary list
-          addToWordlist(customDictionary);
-          sortWordlist();
-
-          // restore custom dictionary to textarea
-          var inputVal = '';
-          for (var i = 0; i < list.length; i++) {
-            inputVal += list[i] + '\n';
-          }
-          document.getElementById("custom-dictionary").value = inputVal;
-
-        });
-
-      // get puzzle (first for now)
-      firebase.database().ref('users/' + userId + '/puzzles').once("value",
-        function (resp) {
-
-          var puzzles = resp.val();
-          var keys = Object.keys(puzzles);
-
-          console.log('puzzles', puzzles)
-
-          for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
-            var puz = puzzles[key];
-
-            console.log(puz.title + ' ' + puz._lastSaved, puz);
-          }
-
-          // load a puzzle
-          xw = puzzles[keys[0]]; // model
-          current = new Interface(xw.rows, xw.cols); // view-controller
-          current.update();
-          updateUI();
-        }
-      );
-    }
-
-  </script>
+  <script src="firebase.js" type="text/javascript"></script>
 </head>
 
 <body>
 
-  <button type="button" onclick="ui.start('#firebaseui-auth-container', uiConfig);">log in</button>
-  <button type="button" onclick="firebase.auth().signOut()">sign out</button>
-  <button type="button" onclick="save()">save</button>
-  <button type="button" onclick="fetch()">fetch</button>
+  <button type="button" id="login-button" onclick="ui.start('#firebaseui-auth-container', uiConfig);">log in</button>
+  <button type="button" id="logout-button" onclick="firebase.auth().signOut()">sign out</button>
+  <button type="button" id="save-button" onclick="save()">save</button>
+  <button type="button" id="fetch-button" onclick="fetch()">fetch</button>
+  <select id="puzzles-select" onchange="loadFromList()">
+
+  </select>
 
   <span id="auth-status"></span>
   <div id="firebaseui-auth-container"></div>
@@ -146,6 +56,8 @@
       <i class="fa fa-folder-open-o fa-fw" aria-hidden="true"></i>
     </button>
     <input id="open-puzzle-input" class="hidden" type="file" accept=".json,.txt,.xw,.puz" />
+
+    <!-- EXPORT/DOWNLOAD -->
     <div id="export-menu" class="menu hidden" onmouseleave="hideMenu(event)">
       <h4>Export as:</h4>
       <button id="export-JSON" class="default" type="button" data-tooltip="Phil puzzle (.xw)" onmouseup="setDefault(event)"
@@ -196,7 +108,20 @@
       <i class="fa fa-book fa-fw" aria-hidden="true"></i>
     </button>
     <input id="open-wordlist-input" class="hidden" type="file" accept=".txt" />
+
+    <!-- CUSTOM DICTIONARY -->
+    <div id="custom-dictionary-button-menu" class="menu hidden" onmouseleave="hideMenu(event)">
+      <h4>Custom words:</h4>
+      <textarea id="custom-dictionary" rows="10" class="form-control"></textarea>
+    </div>
+    <button id="custom-dictionary-button" type="button" onmouseenter="showMenu(event)" onclick="doDefault(event)"
+      data-tooltip="Custom dictionary...">
+      <i class="fa fa-star" aria-hidden="true"></i>
+    </button>
+
+
     <!-- <button id="auto-fill" type="button" data-tooltip="Auto-fill puzzle" onclick="autoFill()"> -->
+
     <button id="auto-fill" type="button" data-tooltip="Auto-fill puzzle" data-state="off" class="disabled">
       <i class="fa fa-magic fa-fw" aria-hidden="true"></i>
     </button>
@@ -239,11 +164,12 @@
       Forked from <a href="http://www.keiranking.com/blog/2017/phil/Phil">Phil</a>, by <a href="mailto:me@keiranking.com?Subject=Kevin & Phil"
         target="_top">Kieran King</a><br />
       Modified by <a href="mailto:dnapoleoni@gmail.com">Daniel Napoleoni</a>
+      and <a href="mailto:joetime@gmail.com">Joe Time</a>
     </div>
   </div>
 
   <div>
-    <textarea id="custom-dictionary" rows="10" class="form-control"></textarea>
+
   </div>
 
   <div id="shortcuts" class="hidden">

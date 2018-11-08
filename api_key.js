@@ -1,0 +1,1 @@
+var MY_API_KEY = "AIzaSyALPcu4vprNzxhwOrQHMM-Mmo24viUtclc";

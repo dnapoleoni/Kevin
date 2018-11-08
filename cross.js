@@ -200,6 +200,7 @@ class Toolbar {
       "clearFill": new Button("clear-fill"),
       "toggleSymmetry": new Button("toggle-symmetry"),
       "openWordlist": new Button("open-wordlist"),
+      //"openCustomDictionary": new Button("open-custom-dictionary"),
       "autoFill": new Button("auto-fill")
     }
   }
